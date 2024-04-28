@@ -1,0 +1,83 @@
+class MakeDecoy #PIL라이브러리 이용,  미끼 파일 생성
+    c드라이브의 사용자 문서 디렉토리에 텍스트 파일과 이미지 파일을numer_of_files만큼 생성
+
+class FileMonitor  # watchdog 라이브러리 이용, 해시값을 이용한 파일 변경 감지
+
+    def calculate_hash
+        사용하는 해시계산 알고리즘 = sha256
+        file_path의  파일을 읽어 4096바이트 만큼 읽어서 해시 계산
+        만약 경로가 이동되거나 삭제될경우
+        파일 이동,삭제 되었다 로깅 후 해시 계산 X
+
+    def on_modified
+        c드라이브의 사용자 문서 디렉토리의 미끼 파일 변경 감지    
+        new_hash = 변경된 해시 계산
+        old_hash = file_hashes에 저장된 원본 해시값 가저오기
+        new_hash 와 old_hash가 일치 하지 않는다면 파일이 변경되었음 문구와 함께 원본 해시와 새 해시값 로깅
+        file_hashes에 변경된 해시값 업데이트
+
+    def initial_scan
+        생선된 미끼 파일들에 대한 원본 해시값 계산 후 file_hashes에 저장
+
+    def start_monitoring
+        initial scan 후 감시 시작
+
+class RansomwareAnalyzer #Frida 라이브러리 이용, window api후킹
+
+    def find_executavle_files
+       사용자 다운로드 파일의 끝이 .exe인 파일을 찾아서
+        executavle_files 리스트에 저장해서 반환
+
+    def spawn_ransomware
+        타겟 프로세스 자동실행
+       # spawn기능이 타겟 프로세스를 자동으로 실행시키고 frida스크립트가 붙을때까지 기다림
+
+    def attach_frida
+        hook script를 읽어옴
+
+        try
+           실행 프로세스의 피드를 받아와서 프리다 붙임
+           실행 프로세스가 만들어내는 자식 프로세스들도 감시하는 기능
+           API후킹을 위해 hook script붙임
+           스크립트의 메세지 받아옴
+           스크립트 읽어옴
+           안전하게 스크립트를 붙이기 위해 1초 sleep
+           프로세스 실행 재개
+
+        프로세스를 찾을 수 없다면
+           에러로그 생성 
+           종료
+        프로세스에 붙을 수 없다면
+           에러로그 생성
+           종료
+
+##분석 실행시키는 부분
+    def analyze(ransomwarepath = 사용자 다운로드 디렉토리)
+        find_executacle_file 사용
+        실행파일 찾을 수 없으면 error로깅
+        executavle_file의 첫번째 요소 가저와 filepath에 저장
+        spawn모드로 filepath랜섬웨어 실행
+        attach firda 실제로 분석 실행
+
+    def cleanup
+       프리다 세션해제를 위한 작업, 붙인 스크립트를 안전하게 제거하는 작업
+       프로세스 실행중이면 종료요청
+       프리다 세션이 존재하면
+       해제
+   
+
+  if __name__ == "__main__":
+
+log파일을 logpath에 생성
+지정한 개수 만큼 디코이 파일 만들기 
+ -->텍스트, 이미지 파일 생성
+디코이 파일 대상으로 모니터링을 위해 경로 설정(decoypath = c드라이브의 문서)
+파일모니터와 annalyzer준비
+
+랜섬웨어 api호출 후킹과 파일모니터링 동시 실행을 위한 스레드 생성
+
+while문으로 0.1초마다 스레드가 살아있는지 체크
+
+키보드 인터럽트시 인터럽트 로깅
+스레드멈추고
+프리다 정리
